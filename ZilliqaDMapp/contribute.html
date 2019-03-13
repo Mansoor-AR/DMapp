@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Contribute new routes</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+        integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+        crossorigin="" />
+
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+        integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+        crossorigin=""></script>
+    <style>
+        .button {
+            background-color: #4CAF50;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            width: 10%;
+            height: 50px;
+        }
+
+        .button2 {
+            background-color: #008CBA;
+        }
+
+        /* Blue */
+        .button3 {
+            background-color: #f44336;
+        }
+
+        /* Red */
+        .button4 {
+            background-color: #e7e7e7;
+            color: black;
+        }
+
+        /* Gray */
+        .button5 {
+            background-color: #555555;
+        }
+
+        /* Black */
+    </style>
+</head>
+
+<body>
+        <div align="center">
+            <h2>Welcome To ĐMapp, Explorer!</h2>
+    <span style="font-size: 150%">Route name:  <input type="text" id="routeName"></span><br><br>
+    <button class="button" id='submitButton'>Submit</button><br><br>
+        </div>
+    <div id="mapid" style="width: 100%; height: 1200px;"></div>
+
+
+
+    <script>
+        var mymap = L.map('mapid');
+        mymap.setView([51.5, -0.09], 13);
+
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+            maxZoom: 18,
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            id: 'mapbox.streets'
+        }).addTo(mymap);
+
+        //var london_marker = L.marker([51.5, -0.09]);
+        //london_marker.addTo(mymap);
+        //london_marker.bindPopup("<b>Hello world!</b><br />I am a popup.");
+        //london_marker.openPopup();
+
+
+
+        plotPath();
+
+        var newPathPoints = new Array();
+
+        function onMapClick(e) {
+            L.circle(e.latlng, 50, {
+                color: 'green',
+                fillColor: '#f03',
+                fillOpacity: 0.5
+            }).addTo(mymap);
+            newPathPoints.push(e.latlng);
+            L.polyline(newPathPoints, { color: 'green' }).addTo(mymap);
+        }
+        mymap.on('click', onMapClick);
+
+
+        var textContent;
+        document.getElementById("submitButton").addEventListener("click", function () {
+            routeName = document.getElementById("routeName").value;
+            var apiUrl = "/submitRoute";
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", apiUrl, false);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            var data = {
+                "routeName": routeName,
+                "newPathPoints": newPathPoints
+            };
+            data = JSON.stringify(data);
+            xhr.send(data);
+            var response = xmlHttp.responseText;
+            var parsed = JSON.parse(response);
+        }, false);
+
+
+        var parsedcontent;
+        function plotPath() {
+            var client = new XMLHttpRequest();
+            client.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    content = this.responseText;
+                    parsedcontent = JSON.parse(content);
+                    console.log(parsedcontent)
+                    for (var routeName in parsedcontent) {
+                        var routeProperties = parsedcontent[routeName]
+                        var points = routeProperties.points;
+                        var latlngs = new Array()
+                        var i;
+                        for (i = 0; i < points.length; i++) {
+                            L.circle(points[i].coordinates, 50, {
+                                color: 'red',
+                                fillColor: '#f03',
+                                fillOpacity: 0.5
+                            }).addTo(mymap).bindPopup(points[i].name);
+                            latlngs.push(points[i].coordinates)
+                        }
+                        var polyline = L.polyline(latlngs, { color: 'red' }).addTo(mymap);
+                        polyline.bindPopup(routeName);
+                    }
+
+                    // zoom the map to the polyline
+                    mymap.flyToBounds(polyline.getBounds());
+
+                }
+            }
+            client.open('GET', '/path.json', true);
+            client.send();
+        }
+
+    </script>
+</body>
+
+</html>
