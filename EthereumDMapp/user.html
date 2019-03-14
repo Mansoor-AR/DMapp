@@ -164,12 +164,13 @@
 
             var fullString = "";
 
-            fullString = "Updated Balances:\n";
+            fullString = "Demo Balances:\n";
 
             fullString = fullString + "Sender- " + web3.eth.accounts[0] + ": " + contents1 + "\n";
             fullString = fullString + "Receiver-" + web3.eth.accounts[1] + ": " + contents2 + "\n";
 
-            element.textContent = "	Update balances\n" + fullString;
+            //element.textContent = "	Update balances\n" + fullString;
+            alert(fullString);
 
 
         });
