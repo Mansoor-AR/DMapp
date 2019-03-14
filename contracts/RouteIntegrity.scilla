@@ -1,0 +1,55 @@
+scilla_version 0
+
+(* RouteIntegrity contract *)
+
+import ListUtils
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+library RouteIntegrity
+
+let one_msg = 
+  fun (msg : Message) => 
+  let nil_msg = Nil {Message} in
+  Cons {Message} msg nil_msg
+  
+let not_owner_code = Int32 1
+let set_hello_code = Int32 2
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract RouteIntegrity
+(owner: ByStr20)
+
+field mapp_block : Map ByStr32 BNum = Emp ByStr32 BNum
+field welcome_msg : String = ""
+
+transition setHash (msg : String)
+  is_owner = builtin eq owner _sender;
+  match is_owner with
+  | False =>
+    e = {_eventname : "setHash()"; code : not_owner_code};
+    event e
+  | True =>
+    welcome_msg := msg;
+    e = {_eventname : "setHash()"; code : set_hello_code};
+    event e
+  end
+end
+
+
+transition getHash ()
+    r <- welcome_msg;
+    e = {_eventname: "getHash()"; msg: r};
+    event e
+end
+
+
+transition contrAddr()
+  msg1 = {_eventname : "ContractAddress"; addr : _this_address };
+  event msg1
+end
+
