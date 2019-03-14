@@ -4,4 +4,4 @@ Link to Ethereum version demo recording: https://mega.nz/#!9NFj0KIS!nmm4XEWORVrS
 Link to Zilliqa version demo recording: https://mega.nz/#!8FdDXQAZ!R4eBzJVW5eGsQPzDRlaz152YKGVz6-2dAZ1i_FpNZuk
 
 ## Running The Demo
-There are two different systems here: one that uses Ethereum as a PSP and one that uses Zilliqa. To run the Ethereum demo, you'll to run ganache and then simply run the python application. To run the Zilliqa demo, you will need to install node and run kaya. You will need Flask installed for both.
+There are two different systems here: one that uses Ethereum as a PSP and one that uses Zilliqa. To run the Ethereum demo, you'll need to run ganache (default parameters) and then simply run the python application. To run the Zilliqa demo, you will need to install node and run kaya (npm debug mode); the python application must be in the same directory as the Zilliqa node modules. You will need Flask installed for both.
